@@ -1,0 +1,259 @@
+VALIDACIÓN ESTUDIANTES
+{
+  $jsonSchema: {
+    bsonType: 'object',
+    required: [
+      'codigo',
+      'nombre',
+      'email',
+      'programa',
+      'estado'
+    ],
+    properties: {
+      codigo: {
+        bsonType: 'string',
+        description: 'Código único de identificación del estudiante - REQUERIDO'
+      },
+      nombre: {
+        bsonType: 'string',
+        description: 'Nombre completo del estudiante - REQUERIDO'
+      },
+      email: {
+        bsonType: 'string',
+        pattern: '^[a-zA-Z0-9._%+-]+@.+\\.(edu|com\\.co)$',
+        description: 'Email institucional válido - REQUERIDO'
+      },
+      fecha_nacimiento: {
+        bsonType: 'date',
+        description: 'Fecha de nacimiento (debe ser pasada)'
+      },
+      programa: {
+        bsonType: 'object',
+        description: 'Referencia embebida al Programa Académico - REQUERIDO',
+        required: [
+          'id',
+          'nombre'
+        ],
+        properties: {
+          id: {
+            bsonType: 'objectId',
+            description: 'ID de la colección \'programas\''
+          },
+          nombre: {
+            bsonType: 'string',
+            description: 'Nombre del programa para fácil referencia'
+          }
+        }
+      },
+      semestre_actual: {
+        bsonType: 'int',
+        description: 'Semestre actual cursado',
+        minimum: 1,
+        maximum: 12
+      },
+      promedio_acumulado: {
+        bsonType: 'double',
+        description: 'Promedio general acumulado',
+        minimum: 0,
+        maximum: 5
+      },
+      estado: {
+        bsonType: 'string',
+        description: 'Estado académico del estudiante - REQUERIDO',
+        'enum': [
+          'Activo',
+          'Inactivo',
+          'Graduado',
+          'Retirado'
+        ]
+      }
+    }
+  }
+}
+
+
+
+
+VALIDACIÓN INSCRIPCIONES
+
+{
+  $jsonSchema: {
+    bsonType: 'object',
+    required: [
+      'estudiante_id',
+      'materia_id',
+      'periodo',
+      'fecha_inscripcion',
+      'estado'
+    ],
+    properties: {
+      estudiante_id: {
+        bsonType: 'objectId',
+        description: '❌ ID de estudiante requerido (ObjectId)'
+      },
+      materia_id: {
+        bsonType: 'objectId',
+        description: '❌ ID de materia requerido (ObjectId)'
+      },
+      periodo: {
+        bsonType: 'string',
+        pattern: '^20[0-9]{2}-[1-2]$',
+        description: '❌ Período formato YYYY-N (ej: 2024-1 o 2024-2)'
+      },
+      fecha_inscripcion: {
+        bsonType: 'date',
+        description: '❌ Fecha de inscripción debe ser tipo Date'
+      },
+      estado: {
+        'enum': [
+          'Inscrito',
+          'Cursando',
+          'Aprobado',
+          'Reprobado',
+          'Retirado'
+        ],
+        description: '❌ Estado válido requerido'
+      },
+      calificaciones: {
+        bsonType: 'array',
+        items: {
+          bsonType: 'object',
+          required: [
+            'nota',
+            'tipo',
+            'porcentaje'
+          ],
+          properties: {
+            nota: {
+              bsonType: 'double',
+              minimum: 0,
+              maximum: 5,
+              description: '❌ Nota entre 0.0 y 5.0'
+            },
+            tipo: {
+              bsonType: 'string',
+              minLength: 3,
+              description: '❌ Tipo de evaluación mínimo 3 caracteres'
+            },
+            porcentaje: {
+              bsonType: 'int',
+              minimum: 1,
+              maximum: 100,
+              description: '❌ Porcentaje entre 1 y 100'
+            }
+          }
+        },
+        description: '❌ Calificaciones debe ser un array válido'
+      }
+    }
+  }
+}
+
+
+VALIDACIÓN PROFESORES
+
+{
+  $jsonSchema: {
+    bsonType: 'object',
+    required: [
+      'codigo',
+      'nombre',
+      'email',
+      'especialidades'
+    ],
+    properties: {
+      codigo: {
+        bsonType: 'string',
+        pattern: '^PRO[0-9]{3,5}$',
+        description: '❌ Código formato PRO### (ej: PRO001)'
+      },
+      nombre: {
+        bsonType: 'string',
+        minLength: 3,
+        maxLength: 100,
+        description: '❌ Nombre entre 3 y 100 caracteres'
+      },
+      email: {
+        bsonType: 'string',
+        pattern: '^[a-zA-Z0-9._%+-]+@universidad\\.edu\\.co$',
+        description: '❌ Email institucional: @universidad.edu.co'
+      },
+      especialidades: {
+        bsonType: 'array',
+        minItems: 1,
+        maxItems: 10,
+        items: {
+          bsonType: 'string'
+        },
+        description: '❌ Al menos 1 especialidad, máximo 10'
+      },
+      materias_asignadas: {
+        bsonType: 'array',
+        maxItems: 15,
+        items: {
+          bsonType: 'objectId'
+        },
+        description: '❌ Máximo 15 materias asignadas'
+      },
+      contacto: {
+        bsonType: 'object',
+        properties: {
+          telefono: {
+            bsonType: 'string',
+            pattern: '^\\+57 [0-9]{3} [0-9]{3} [0-9]{4}$'
+          },
+          oficina: {
+            bsonType: 'string'
+          },
+          ciudad: {
+            bsonType: 'string'
+          }
+        }
+      }
+    }
+  }
+}
+
+
+VALIDACIÓN PROGRAMAS
+
+{
+  $jsonSchema: {
+    bsonType: 'object',
+    required: [
+      'nombre',
+      'nivel',
+      'duracion_semestres',
+      'codigo'
+    ],
+    properties: {
+      nombre: {
+        bsonType: 'string',
+        minLength: 5,
+        maxLength: 100,
+        description: '❌ Nombre entre 5 y 100 caracteres'
+      },
+      nivel: {
+        'enum': [
+          'Pregrado',
+          'Posgrado',
+          'Especialización',
+          'Maestría',
+          'Doctorado'
+        ],
+        description: '❌ Nivel válido requerido'
+      },
+      duracion_semestres: {
+        bsonType: 'int',
+        minimum: 1,
+        maximum: 14,
+        description: '❌ Duración entre 1 y 14 semestres'
+      },
+      codigo: {
+        bsonType: 'string',
+        pattern: '^[A-Z]{2,6}(-[A-Z]{2,3})?$',
+        description: '❌ Código formato: XX o XX-YY (ej: ISOFT, ESP-CS)'
+      }
+    }
+  }
+}
